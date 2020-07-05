@@ -1,5 +1,13 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { cloneDeep, range, flatMap, chunk, zipWith } from "lodash";
+import {
+  cloneDeep,
+  range,
+  flatMap,
+  chunk,
+  zipWith,
+  flatMapDeep,
+  sample,
+} from "lodash";
 import "./App.css";
 
 // TODO: Check results. Show error
@@ -90,7 +98,7 @@ const puzzle7 = [
   [7, 0, 0, 3, 0, 4, 8, 5, 0],
 ];
 
-const initial = [
+const empty = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -100,18 +108,6 @@ const initial = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
-];
-
-const puzzle7complete = [
-  [6, 9, 4, 5, 1, 2, 3, 8, 7],
-  [2, 3, 8, 9, 7, 6, 1, 4, 5],
-  [5, 1, 7, 8, 4, 3, 2, 9, 6],
-  [8, 6, 1, 7, 3, 9, 5, 2, 4],
-  [4, 5, 2, 1, 6, 8, 9, 7, 3],
-  [9, 7, 3, 4, 2, 5, 6, 1, 8],
-  [3, 4, 5, 2, 8, 1, 7, 6, 9],
-  [1, 8, 9, 6, 5, 7, 4, 3, 2],
-  [7, 2, 6, 3, 9, 4, 8, 5, 1],
 ];
 
 const puzzle7almostcomplete = [
@@ -138,6 +134,17 @@ const replacement: { [key: number]: string } = {
   9: "👆🏽",
 };
 
+const puzzle = sample([
+  puzzle1,
+  puzzle1,
+  puzzle2,
+  puzzle3,
+  puzzle4,
+  puzzle5,
+  puzzle6,
+  puzzle7,
+]) as number[][];
+
 const urlParams = new URLSearchParams(window.location.search);
 const fu = urlParams.get("fu") ?? "1";
 
@@ -163,8 +170,9 @@ const check = (rows: number[][]): boolean => {
 };
 
 function App() {
-  const [grid, setGrid] = useState(puzzle7);
+  const [grid, setGrid] = useState(puzzle);
   const isValid = check(grid);
+  const isComplete = flatMapDeep(grid).every((x) => x > 0);
 
   const [rotation, setRotation] = useState(0);
 
@@ -177,8 +185,16 @@ function App() {
     4,
   ]);
 
+  const isProtected = (x: number, y: number) => {
+    return puzzle[y][x] > 0;
+  };
+
   useEffect(() => {
     const setCell = (value: number) => {
+      if (isProtected(selectionX, selectionY)) {
+        return;
+      }
+
       const gridCopy = cloneDeep(grid);
       gridCopy[selectionY][selectionX] = value;
       setGrid(gridCopy);
@@ -253,7 +269,7 @@ function App() {
                 key={x}
                 className={`cell col-${x} ${
                   selectionX === x && selectionY === y ? "selected" : ""
-                }`}
+                } ${isProtected(x, y) ? "protected" : ""}`}
                 onClick={() => setSelection([x, y])}
               >
                 <span>{cell === 0 ? "" : getCellValue(cell)}</span>

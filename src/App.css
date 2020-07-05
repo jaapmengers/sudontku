@@ -158,8 +158,13 @@ body {
   width: 43px;
   height: 43px;
   display: flex;
+  color: #009fdf;
   justify-content: center;
   align-items: center;
+}
+
+.cell.protected {
+  color: black;
 }
 
 .cell span {
