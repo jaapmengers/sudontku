@@ -174,7 +174,7 @@ const check = (rows: number[][]): boolean => {
 const shiftValues = (grid: number[][]) => {
   const shiftBy = sample(range(0, 9)) as number;
   return grid.map((row) =>
-    row.map((cell) => (cell > 0 ? (cell + shiftBy) % 8 : 0))
+    row.map((cell) => (cell > 0 ? ((cell + shiftBy - 1) % 9) + 1 : 0))
   );
 };
 
