@@ -31,19 +31,23 @@ body {
   transform: rotate(270deg);
 }
 
-.rotate-0.invalid {
+.rotate-0.invalid,
+.rotate-0.complete {
   animation: shake0 ease-in-out 0.1s;
 }
 
-.rotate-90.invalid {
+.rotate-90.invalid,
+.rotate-90.complete {
   animation: shake90 ease-in-out 0.1s;
 }
 
-.rotate-180.invalid {
+.rotate-180.invalid,
+.rotate-180.complete {
   animation: shake180 ease-in-out 0.1s;
 }
 
-.rotate-270.invalid {
+.rotate-270.invalid,
+.rotate-270.complete {
   animation: shake270 ease-in-out 0.1s;
 }
 
@@ -154,6 +158,11 @@ body {
   border-color: #bf360d;
 }
 
+.complete .cell,
+.complete .row {
+  border-color: white;
+}
+
 .cell {
   width: 43px;
   height: 43px;
@@ -161,6 +170,11 @@ body {
   color: #009fdf;
   justify-content: center;
   align-items: center;
+}
+
+.complete .cell {
+  background-color: #84bc2d;
+  color: white !important;
 }
 
 .cell.protected {

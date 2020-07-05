@@ -134,16 +134,18 @@ const replacement: { [key: number]: string } = {
   9: "👆🏽",
 };
 
-const puzzle = sample([
-  puzzle1,
-  puzzle1,
-  puzzle2,
-  puzzle3,
-  puzzle4,
-  puzzle5,
-  puzzle6,
-  puzzle7,
-]) as number[][];
+const puzzle = puzzle7almostcomplete;
+
+// const puzzle = sample([
+//   puzzle1,
+//   puzzle1,
+//   puzzle2,
+//   puzzle3,
+//   puzzle4,
+//   puzzle5,
+//   puzzle6,
+//   puzzle7,
+// ]) as number[][];
 
 const urlParams = new URLSearchParams(window.location.search);
 const fu = urlParams.get("fu") ?? "1";
@@ -172,7 +174,7 @@ const check = (rows: number[][]): boolean => {
 function App() {
   const [grid, setGrid] = useState(puzzle);
   const isValid = check(grid);
-  const isComplete = flatMapDeep(grid).every((x) => x > 0);
+  const isComplete = isValid && flatMapDeep(grid).every((x) => x > 0);
 
   const [rotation, setRotation] = useState(0);
 
@@ -260,7 +262,9 @@ function App() {
     <div id="container">
       <div
         id="grid"
-        className={`${isValid ? "" : "invalid"} rotate-${rotation}`}
+        className={`${isValid ? "" : "invalid"} ${
+          isComplete ? "complete" : ""
+        } rotate-${rotation}`}
       >
         {grid.map((row, y) => (
           <div key={y} className={`row row-${y}`}>
