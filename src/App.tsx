@@ -138,6 +138,9 @@ const replacement: { [key: number]: string } = {
   9: "👆🏽",
 };
 
+const urlParams = new URLSearchParams(window.location.search);
+const fu = urlParams.get("fu") ?? "1";
+
 const check = (rows: number[][]): boolean => {
   const columns = range(0, 9).map((r) => range(0, 9).map((c) => rows[c][r]));
 
@@ -166,7 +169,7 @@ function App() {
   const [rotation, setRotation] = useState(0);
 
   const rotate = useCallback(() => {
-    setRotation(rotation + 90);
+    setRotation((rotation + 90) % 360);
   }, [rotation]);
 
   const [[selectionX, selectionY], setSelection] = useState<[number, number]>([
@@ -179,7 +182,9 @@ function App() {
       const gridCopy = cloneDeep(grid);
       gridCopy[selectionY][selectionX] = value;
       setGrid(gridCopy);
-      // rotate();
+      if (fu === "1") {
+        rotate();
+      }
     };
 
     const moveSelection = (x: number, y: number) => {
@@ -227,12 +232,19 @@ function App() {
     };
   }, [grid, rotate, selectionX, selectionY]);
 
+  const getCellValue = (value: number) => {
+    if (fu === "2") {
+      return replacement[value];
+    }
+
+    return value;
+  };
+
   return (
     <div id="container">
       <div
         id="grid"
-        className={`${isValid ? "" : "invalid"}`}
-        style={{ transform: `rotate(${rotation}deg)` }}
+        className={`${isValid ? "" : "invalid"} rotate-${rotation}`}
       >
         {grid.map((row, y) => (
           <div key={y} className={`row row-${y}`}>
@@ -244,7 +256,7 @@ function App() {
                 }`}
                 onClick={() => setSelection([x, y])}
               >
-                <span>{cell === 0 ? "" : cell}</span>
+                <span>{cell === 0 ? "" : getCellValue(cell)}</span>
               </div>
             ))}
           </div>
