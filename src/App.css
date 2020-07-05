@@ -6,6 +6,11 @@ body {
   display: flex;
 }
 
+#innerContainer.invalid {
+  animation: shake ease-in-out 0.1s;
+  animation-delay: 0.2s;
+}
+
 #grid {
   flex-shrink: 1;
   flex-direction: column;
@@ -15,43 +20,7 @@ body {
   transition: 100ms ease-in-out;
 }
 
-.rotate-0 {
-  transform: rotate(0deg);
-}
-
-.rotate-90 {
-  transform: rotate(90deg);
-}
-
-.rotate-180 {
-  transform: rotate(180deg);
-}
-
-.rotate-270 {
-  transform: rotate(270deg);
-}
-
-.rotate-0.invalid,
-.rotate-0.complete {
-  animation: shake0 ease-in-out 0.1s;
-}
-
-.rotate-90.invalid,
-.rotate-90.complete {
-  animation: shake90 ease-in-out 0.1s;
-}
-
-.rotate-180.invalid,
-.rotate-180.complete {
-  animation: shake180 ease-in-out 0.1s;
-}
-
-.rotate-270.invalid,
-.rotate-270.complete {
-  animation: shake270 ease-in-out 0.1s;
-}
-
-@keyframes shake0 {
+@keyframes shake {
   25% {
     transform: rotate(-1deg);
   }
@@ -63,51 +32,6 @@ body {
   }
   100% {
     transform: rotate(0deg);
-  }
-}
-
-@keyframes shake90 {
-  25% {
-    transform: rotate(89deg);
-  }
-  50% {
-    transform: rotate(90deg);
-  }
-  75% {
-    transform: rotate(89deg);
-  }
-  100% {
-    transform: rotate(90deg);
-  }
-}
-
-@keyframes shake180 {
-  25% {
-    transform: rotate(179deg);
-  }
-  50% {
-    transform: rotate(180deg);
-  }
-  75% {
-    transform: rotate(179deg);
-  }
-  100% {
-    transform: rotate(180deg);
-  }
-}
-
-@keyframes shake270 {
-  25% {
-    transform: rotate(269deg);
-  }
-  50% {
-    transform: rotate(270deg);
-  }
-  75% {
-    transform: rotate(269deg);
-  }
-  100% {
-    transform: rotate(270deg);
   }
 }
 

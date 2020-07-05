@@ -186,7 +186,7 @@ function App() {
   const [rotation, setRotation] = useState(0);
 
   const rotate = useCallback(() => {
-    setRotation((rotation + 90) % 360);
+    setRotation(rotation + 90);
   }, [rotation]);
 
   const [[selectionX, selectionY], setSelection] = useState<[number, number]>([
@@ -273,27 +273,28 @@ function App() {
 
   return (
     <div id="container">
-      <div
-        id="grid"
-        className={`${isValid ? "" : "invalid"} ${
-          isComplete ? "complete" : ""
-        } rotate-${rotation}`}
-      >
-        {grid.map((row, y) => (
-          <div key={y} className={`row row-${y}`}>
-            {row.map((cell, x) => (
-              <div
-                key={x}
-                className={`cell col-${x} ${
-                  selectionX === x && selectionY === y ? "selected" : ""
-                } ${isProtected(x, y) ? "protected" : ""}`}
-                onClick={() => setSelection([x, y])}
-              >
-                <span>{cell === 0 ? "" : getCellValue(cell)}</span>
-              </div>
-            ))}
-          </div>
-        ))}
+      <div id="innerContainer" className={`${isValid ? "" : "invalid"}`}>
+        <div
+          id="grid"
+          style={{ transform: `rotate(${rotation}deg)` }}
+          className={`${isComplete ? "complete" : ""}`}
+        >
+          {grid.map((row, y) => (
+            <div key={y} className={`row row-${y}`}>
+              {row.map((cell, x) => (
+                <div
+                  key={x}
+                  className={`cell col-${x} ${
+                    selectionX === x && selectionY === y ? "selected" : ""
+                  } ${isProtected(x, y) ? "protected" : ""}`}
+                  onClick={() => setSelection([x, y])}
+                >
+                  <span>{cell === 0 ? "" : getCellValue(cell)}</span>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
