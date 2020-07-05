@@ -1,6 +1,94 @@
-import React, { useState, useEffect } from "react";
-import { cloneDeep } from "lodash";
+import React, { useState, useEffect, useCallback } from "react";
+import { cloneDeep, range, flatMap, chunk, zipWith } from "lodash";
 import "./App.css";
+
+// TODO: Check results. Show error
+// Extra variant: Telkens veranderende tekenset
+// Extra variant: emoji's met verschillende skin tones
+
+const puzzle1 = [
+  [0, 0, 4, 6, 0, 0, 0, 5, 0],
+  [0, 0, 0, 0, 0, 3, 0, 6, 8],
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 0, 2, 4, 0, 0, 0],
+  [0, 3, 0, 9, 6, 1, 2, 0, 0],
+  [0, 0, 5, 3, 0, 0, 0, 0, 6],
+  [2, 7, 0, 1, 0, 5, 0, 9, 0],
+  [0, 9, 8, 0, 0, 0, 0, 3, 7],
+  [1, 0, 0, 0, 0, 0, 0, 0, 2],
+];
+
+const puzzle2 = [
+  [0, 0, 0, 0, 0, 0, 0, 3, 6],
+  [4, 0, 2, 0, 0, 0, 0, 0, 5],
+  [5, 0, 0, 6, 0, 0, 8, 2, 1],
+  [0, 2, 0, 0, 0, 0, 0, 0, 8],
+  [0, 0, 0, 0, 0, 4, 3, 0, 0],
+  [8, 4, 7, 9, 0, 3, 0, 0, 0],
+  [0, 7, 8, 0, 6, 0, 0, 0, 0],
+  [0, 0, 4, 0, 1, 0, 0, 0, 0],
+  [0, 3, 0, 0, 0, 0, 5, 7, 0],
+];
+
+const puzzle3 = [
+  [0, 0, 0, 5, 1, 0, 0, 0, 0],
+  [2, 0, 8, 9, 0, 6, 0, 4, 0],
+  [5, 0, 0, 8, 0, 3, 0, 9, 0],
+  [0, 6, 1, 0, 0, 0, 0, 2, 0],
+  [0, 0, 2, 1, 0, 0, 9, 0, 0],
+  [0, 0, 0, 0, 0, 5, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 7, 0, 0],
+  [0, 0, 9, 0, 0, 7, 0, 0, 0],
+  [7, 0, 0, 3, 0, 4, 8, 5, 0],
+];
+
+const puzzle4 = [
+  [0, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 6, 0, 0, 5, 0, 2, 0, 0],
+  [4, 0, 9, 0, 2, 8, 0, 3, 0],
+  [0, 2, 0, 0, 0, 1, 0, 0, 8],
+  [9, 0, 0, 0, 8, 3, 1, 0, 5],
+  [0, 0, 0, 9, 6, 0, 0, 4, 0],
+  [0, 0, 0, 0, 0, 2, 7, 0, 4],
+  [0, 3, 0, 0, 0, 0, 0, 0, 9],
+  [8, 5, 0, 0, 4, 0, 0, 0, 0],
+];
+
+const puzzle5 = [
+  [6, 8, 0, 0, 3, 0, 0, 4, 9],
+  [0, 0, 4, 0, 0, 1, 0, 0, 0],
+  [0, 5, 0, 2, 0, 0, 0, 0, 0],
+  [0, 0, 0, 3, 0, 0, 0, 0, 0],
+  [0, 9, 0, 0, 0, 7, 3, 0, 6],
+  [0, 1, 0, 6, 8, 0, 0, 0, 0],
+  [2, 0, 1, 0, 0, 6, 0, 0, 0],
+  [0, 0, 8, 9, 4, 0, 0, 1, 0],
+  [0, 4, 9, 0, 0, 0, 0, 3, 0],
+];
+
+const puzzle6 = [
+  [3, 0, 6, 0, 0, 0, 0, 0, 4],
+  [5, 0, 0, 0, 0, 7, 0, 0, 0],
+  [0, 1, 0, 0, 4, 3, 0, 0, 9],
+  [1, 0, 8, 5, 0, 0, 3, 6, 0],
+  [0, 0, 0, 0, 0, 4, 0, 0, 0],
+  [2, 0, 0, 0, 0, 0, 0, 0, 0],
+  [0, 0, 0, 1, 0, 2, 6, 0, 3],
+  [6, 0, 0, 8, 0, 0, 0, 4, 0],
+  [9, 2, 0, 0, 0, 0, 8, 1, 0],
+];
+
+const puzzle7 = [
+  [0, 0, 0, 5, 1, 0, 0, 0, 0],
+  [2, 0, 8, 9, 0, 6, 0, 4, 0],
+  [5, 0, 0, 8, 0, 3, 0, 9, 0],
+  [0, 6, 1, 0, 0, 0, 0, 2, 0],
+  [0, 0, 2, 1, 0, 0, 9, 0, 0],
+  [0, 0, 0, 0, 0, 5, 0, 0, 0],
+  [0, 0, 0, 0, 0, 1, 7, 0, 0],
+  [0, 0, 9, 0, 0, 7, 0, 0, 0],
+  [7, 0, 0, 3, 0, 4, 8, 5, 0],
+];
 
 const initial = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -14,29 +102,87 @@ const initial = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-function App() {
-  const [grid, setGrid] = useState(initial);
+const puzzle7complete = [
+  [6, 9, 4, 5, 1, 2, 3, 8, 7],
+  [2, 3, 8, 9, 7, 6, 1, 4, 5],
+  [5, 1, 7, 8, 4, 3, 2, 9, 6],
+  [8, 6, 1, 7, 3, 9, 5, 2, 4],
+  [4, 5, 2, 1, 6, 8, 9, 7, 3],
+  [9, 7, 3, 4, 2, 5, 6, 1, 8],
+  [3, 4, 5, 2, 8, 1, 7, 6, 9],
+  [1, 8, 9, 6, 5, 7, 4, 3, 2],
+  [7, 2, 6, 3, 9, 4, 8, 5, 1],
+];
 
-  const [[selectionX, selectionY], setSelection] = useState<
-    [number | undefined, number | undefined]
-  >([undefined, undefined]);
+const puzzle7almostcomplete = [
+  [6, 9, 4, 5, 1, 2, 3, 8, 7],
+  [2, 3, 8, 9, 7, 6, 1, 4, 5],
+  [5, 1, 7, 8, 4, 3, 2, 9, 6],
+  [8, 6, 1, 7, 3, 9, 5, 2, 4],
+  [4, 5, 2, 1, 6, 8, 9, 7, 3],
+  [9, 7, 3, 4, 2, 5, 6, 1, 8],
+  [3, 4, 5, 2, 8, 1, 7, 6, 9],
+  [1, 8, 9, 6, 5, 7, 4, 3, 2],
+  [7, 2, 6, 3, 9, 4, 8, 5, 0],
+];
+
+const replacement: { [key: number]: string } = {
+  1: "🤘🏻",
+  2: "🤘🏼",
+  3: "🤘🏽",
+  4: "☝🏻",
+  5: "☝🏼",
+  6: "☝🏽",
+  7: "👆🏻",
+  8: "👆🏼",
+  9: "👆🏽",
+};
+
+const check = (rows: number[][]): boolean => {
+  const columns = range(0, 9).map((r) => range(0, 9).map((c) => rows[c][r]));
+
+  const chunks = flatMap(
+    chunk(
+      rows.map((row) => chunk(row, 3)),
+      3
+    ),
+    (chunks) => {
+      const [first, second, third] = chunks;
+
+      return zipWith(first, second, third, (a, b, c) => [...a, ...b, ...c]);
+    }
+  );
+
+  return [...rows, ...columns, ...chunks].every((sg) => {
+    const nonZeros = sg.filter((x) => x > 0);
+    return nonZeros.length === new Set(nonZeros).size;
+  });
+};
+
+function App() {
+  const [grid, setGrid] = useState(puzzle7);
+  const isValid = check(grid);
+
+  const [rotation, setRotation] = useState(0);
+
+  const rotate = useCallback(() => {
+    setRotation(rotation + 90);
+  }, [rotation]);
+
+  const [[selectionX, selectionY], setSelection] = useState<[number, number]>([
+    4,
+    4,
+  ]);
 
   useEffect(() => {
     const setCell = (value: number) => {
-      if (selectionX === undefined || selectionY === undefined) {
-        return;
-      }
-
       const gridCopy = cloneDeep(grid);
       gridCopy[selectionY][selectionX] = value;
       setGrid(gridCopy);
+      // rotate();
     };
 
     const moveSelection = (x: number, y: number) => {
-      if (selectionX === undefined || selectionY === undefined) {
-        return;
-      }
-
       const calc = (value: number): number => {
         if (value < 0) {
           return 7 - value;
@@ -79,11 +225,15 @@ function App() {
     return () => {
       document.removeEventListener("keydown", onPress, false);
     };
-  }, [grid, selectionX, selectionY]);
+  }, [grid, rotate, selectionX, selectionY]);
 
   return (
     <div id="container">
-      <div id="grid">
+      <div
+        id="grid"
+        className={`${isValid ? "" : "invalid"}`}
+        style={{ transform: `rotate(${rotation}deg)` }}
+      >
         {grid.map((row, y) => (
           <div key={y} className={`row row-${y}`}>
             {row.map((cell, x) => (

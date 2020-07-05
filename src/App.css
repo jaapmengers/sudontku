@@ -9,6 +9,29 @@ body {
 #grid {
   flex-shrink: 1;
   flex-direction: column;
+  -webkit-transition: 100ms ease-in-out;
+  -moz-transition: 100ms ease-in-out;
+  -o-transition: 100ms ease-in-out;
+  transition: 100ms ease-in-out;
+}
+
+#grid.invalid {
+  animation: shake ease-in-out 0.1s;
+}
+
+@keyframes shake {
+  25% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
 }
 
 .row {
@@ -51,6 +74,11 @@ body {
 
 .col-8 {
   border-right: 3px solid rgb(204, 204, 204);
+}
+
+.invalid .cell,
+.invalid .row {
+  border-color: #bf360d;
 }
 
 .cell {
