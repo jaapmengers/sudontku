@@ -134,18 +134,18 @@ const replacement: { [key: number]: string } = {
   9: "👆🏽",
 };
 
-const puzzle = puzzle7almostcomplete;
+// const puzzle = puzzle7almostcomplete;
 
-// const puzzle = sample([
-//   puzzle1,
-//   puzzle1,
-//   puzzle2,
-//   puzzle3,
-//   puzzle4,
-//   puzzle5,
-//   puzzle6,
-//   puzzle7,
-// ]) as number[][];
+const puzzle = sample([
+  puzzle1,
+  puzzle1,
+  puzzle2,
+  puzzle3,
+  puzzle4,
+  puzzle5,
+  puzzle6,
+  puzzle7,
+]) as number[][];
 
 const urlParams = new URLSearchParams(window.location.search);
 const fu = urlParams.get("fu") ?? "1";
@@ -169,6 +169,13 @@ const check = (rows: number[][]): boolean => {
     const nonZeros = sg.filter((x) => x > 0);
     return nonZeros.length === new Set(nonZeros).size;
   });
+};
+
+const shiftValues = (grid: number[][]) => {
+  const shiftBy = sample(range(0, 9)) as number;
+  return grid.map((row) =>
+    row.map((cell) => (cell > 0 ? (cell + shiftBy) % 8 : 0))
+  );
 };
 
 function App() {
@@ -199,7 +206,13 @@ function App() {
 
       const gridCopy = cloneDeep(grid);
       gridCopy[selectionY][selectionX] = value;
-      setGrid(gridCopy);
+
+      if (fu === "3") {
+        setGrid(shiftValues(gridCopy));
+      } else {
+        setGrid(gridCopy);
+      }
+
       if (fu === "1") {
         rotate();
       }
